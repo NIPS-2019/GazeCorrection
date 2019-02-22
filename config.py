@@ -1,6 +1,43 @@
 import os
+import time
 
 class Config:
+
+    CUDA = True
+    use_sp = True
+    shuffle = True
+    is_training = True
+
+    step = 0
+    lam_fp = 1
+    gpu_id = 0
+    beta1 = 0.5
+    lr_decay = 1
+    beta2 = 0.999
+    loss_type = 1
+    pos_number = 4
+    lam_recon = 10
+    batch_size = 16
+    batch_num = 200
+    capacity = 5000
+    num_threads = 10
+    image_size = 256
+    max_iters = 500000
+    test_step = 100000
+    g_learning_rate = 0.0001
+    d_learning_rate = 0.0001
+    hwc = [image_size, image_size, 3]
+
+    cuda_number = "0"
+    logs_name = "logs"
+    dir_path = "NewGazeData"
+    read_model_name = "read_model"
+    write_model_name = "write_model"
+    test_name = "test_img_inpainting"
+    sample_name = "sample_img_inpainting"
+    dataset_txt0 = "/eye_position_new_gaze_0.txt"
+    dataset_txt1 = "/eye_position_new_gaze_1.txt"
+    data_dir_path = "/eye_ijcai/"
 
     @property
     def base_path(self):
@@ -8,107 +45,64 @@ class Config:
 
     @property
     def data_dir(self):
-        data_dir = os.path.join(self.base_path, '?')
+        data_dir = os.path.join(self.base_path,self.data_dir_path )
+
         if not os.path.exists(data_dir):
             raise ValueError('Please specify a data dir.')
         return data_dir
 
     @property
     def exp_dir(self):
-        exp_dir = os.path.join(self.base_path, 'train_log' + self.operation_name)
+        exp_dir = self.base_path
+
         if not os.path.exists(exp_dir):
             os.makedirs(exp_dir)
         return exp_dir
 
     @property
     def read_model_path(self):
-        model_path = os.path.join(self.exp_dir, 'read_model')
+        model_path = os.path.join(self.exp_dir, self.read_model_name)
+
         if not os.path.exists(model_path):
             os.makedirs(model_path)
         return model_path
 
+    @property
     def write_model_path(self):
-        model_path = os.path.join(self.exp_dir, 'write_model')
+        model_path = os.path.join(self.exp_dir, self.write_model_name)
+
         if not os.path.exists(model_path):
             os.makedirs(model_path)
         return model_path
 
     @property
     def log_dir(self):
-        log_dir = os.path.join(self.exp_dir, 'logs')
+        log_dir = os.path.join(self.exp_dir, self.logs_name)
+
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
         return log_dir
 
-    training_step = 1
-    is_training = True
-    gpu_id = 7
-    image_size = 256
-    hwc = [image_size, image_size, 3]
-    is_load = 0
-    load_model = 0
+    @property
+    def sample_path(self):
+        sample_path = os.path.join(self.exp_dir, self.sample_name)
 
-    #loss_type
-    all_pg = 9
-    max_iters = 5000
-    all_iters = 5000 * all_pg
-    g_learning_rate = 0.0001
-    loss_type = 0
-    d_learning_rate = 0.0005 if loss_type == 0 else 0.0001
-    n_critic = 1 if loss_type == 0 else 5
-    use_sp = True if loss_type == 0 else False
+        if not os.path.exists(sample_path):
+            os.makedirs(sample_path)
+        return sample_path
 
-    # hyper
-    batch_size = 4
-    lam_recon = 10
-    lam_fp = 0
-    weight_decay = 5e-5
+    @property
+    def test_sample_path(self):
+        sample_path = os.path.join(self.exp_dir, self.test_name)
 
-    beta1 = 0.5
-    beta2 = 0.999
+        if not os.path.exists(sample_path):
+            os.makedirs(sample_path)
+        return sample_path
 
-    # dataset
-    num_threads = 10
-    capacity = 15000
-    shuffle = True
+    def get_iter_num(self):
+        return int(os.listdir(self.read_model_path)[0].split(".")[0].split("_")[1])
 
-    if training_step == 0:
 
-        def sample_path(self):
-            sample_path = os.path.join(self.exp_dir, 'sample_img')
-            if not os.path.exists(sample_path):
-                os.makedirs(sample_path)
-            return sample_path
+    operation_name = time.strftime("%Y-%m-%d",time.localtime(time.time()))
 
-        @property
-        def test_sample_path(self):
-            sample_path = os.path.join(self.exp_dir, 'test_sample_img')
-            if not os.path.exists(sample_path):
-                os.makedirs(sample_path)
-            return sample_path
 
-        operation_name = "11_2_22"
-
-    #for inpainting
-    else:
-
-        def sample_path(self):
-            sample_path = os.path.join(self.exp_dir, 'sample_img_inpainting11')
-            if not os.path.exists(sample_path):
-                os.makedirs(sample_path)
-            return sample_path
-
-        def write_model_path(self):
-            model_path = os.path.join(self.exp_dir, 'write_model11')
-            if not os.path.exists(model_path):
-                os.makedirs(model_path)
-            return model_path
-
-        @property
-        def test_sample_path(self):
-            sample_path = os.path.join(self.exp_dir, 'test_img_inpainting11')
-            if not os.path.exists(sample_path):
-                os.makedirs(sample_path)
-            return sample_path
-
-        operation_name = "11_2_22"
