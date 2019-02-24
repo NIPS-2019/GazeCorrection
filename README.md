@@ -3,8 +3,8 @@ The code of paper "GazeCorrection: Self-Guided Eye Manipulation in the wild usin
 
 --------------------------------------------
 
-<img src="https://github.com/IJCAI2019/Eye_Correction/blob/master/img/57.jpg" width = 500>
-<img src="https://github.com/IJCAI2019/Eye_Correction/blob/master/img/57-output.jpg" width = 500>
+<img src="https://github.com/IJCAI2019/Eye_Correction/blob/master/img/57.jpg" width = 400>
+<img src="https://github.com/IJCAI2019/Eye_Correction/blob/master/img/57-output.jpg" width = 400>
 
 
 # Introduction
