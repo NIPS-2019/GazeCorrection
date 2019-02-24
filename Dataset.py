@@ -1,0 +1,132 @@
+import os
+import scipy.misc
+import numpy as np
+import tensorflow as tf
+
+
+class Dataset(object):
+
+    def __init__(self, config):
+        super(Dataset, self).__init__()
+
+        self.dir_path = config.dir_path
+        self.shuffle = config.shuffle
+        self.data_dir = config.data_dir
+        self.capacity = config.capacity
+        self.dataset_txt0 = config.dataset_txt0
+        self.dataset_txt1 = config.dataset_txt1
+        self.batch_size = config.batch_size
+        self.num_threads = config.num_threads
+        self.height, self.width, self.channel = config.hwc
+
+        self.train_images_list, self.train_eye_pos,self.test_images_list, self.test_eye_pos = self.readfilenames()
+
+        print "Numbers of test dataset", len(self.train_images_list), len(self.test_images_list)
+
+    def readfilenames(self):
+        train_eye_pos = []
+        train_images_list = []
+        dir_path = self.dir_path
+        fh = open(self.data_dir +self.dataset_txt1)
+
+        for f in fh.readlines():
+            eye_pos = []
+            f = f.strip('\n')
+            filenames = f.split(' ', 5)
+            if os.path.exists(os.path.join(self.data_dir, dir_path+"/1/"+filenames[0]+".jpg")):
+                train_images_list.append(os.path.join(self.data_dir, dir_path+"/1/"+filenames[0]+".jpg"))
+                eye_pos.extend([int(value) for value in filenames[1:5]])
+                train_eye_pos.append(eye_pos)
+
+        fh.close()
+
+        fh = open(self.data_dir +self.dataset_txt0)
+        test_images_list = []
+        test_eye_pos = []
+
+        for f in fh.readlines():
+            eye_pos = []
+            f = f.strip('\n')
+            filenames = f.split(' ', 5)
+
+            if os.path.exists(os.path.join(self.data_dir, dir_path+"/0/"+filenames[0]+".jpg")):
+                test_images_list.append(os.path.join(self.data_dir, dir_path+"/0/"+filenames[0]+".jpg"))
+                eye_pos.extend([int(value) for value in filenames[1:5]])
+                test_eye_pos.append(eye_pos)
+
+        fh.close()
+
+        return train_images_list, train_eye_pos, test_images_list, test_eye_pos
+
+    def read_images(self, input_queue):
+
+        content = tf.read_file(input_queue)
+        image = tf.image.decode_jpeg(content, channels=self.channel)
+        image = tf.cast(image, tf.float32)
+        image = tf.image.resize_images(image, size=(self.height, self.width))
+
+        return image / 127.5 - 1.0
+
+    def input(self):
+
+        train_images = tf.convert_to_tensor(self.train_images_list, dtype=tf.string)
+        train_eye_pos = tf.convert_to_tensor(self.train_eye_pos, dtype=tf.int32)
+        train_queue = tf.train.slice_input_producer([train_images, train_eye_pos], shuffle=True)
+        train_eye_pos_queue = train_queue[1]
+        train_images_queue = self.read_images(input_queue=train_queue[0])
+
+        test_images = tf.convert_to_tensor(self.test_images_list, dtype=tf.string)
+        test_eye_pos = tf.convert_to_tensor(self.test_eye_pos, dtype=tf.int32)
+        test_queue = tf.train.slice_input_producer([test_images, test_eye_pos], shuffle=False)
+        test_eye_pos_queue = test_queue[1]
+        test_images_queue = self.read_images(input_queue=test_queue[0])
+
+        batch_path, batch_image1, batch_eye_pos1 = tf.train.shuffle_batch([train_queue[0], train_images_queue, train_eye_pos_queue],
+                                                batch_size=self.batch_size,
+                                                capacity=self.capacity,
+                                                num_threads=self.num_threads,
+                                                min_after_dequeue=1000
+                                                )
+
+        batch_image2, batch_eye_pos2 = tf.train.batch([test_images_queue, test_eye_pos_queue],
+                                                batch_size=self.batch_size,
+                                                capacity=500,
+                                                num_threads=self.num_threads
+                                                )
+
+        return batch_path, batch_image1, batch_eye_pos1, batch_image2, batch_eye_pos2
+
+def save_images(images, size, image_path, is_ouput=False):
+    return imsave(inverse_transform(images, is_ouput), size, image_path)
+
+def imsave(images, size, path):
+    return scipy.misc.imsave(path, merge(images, size))
+
+def inverse_transform(image, is_ouput=False):
+
+    if is_ouput == True:
+        print image[0]
+    result = ((image + 1) * 127.5).astype(np.uint8)
+
+    if is_ouput == True:
+        print result
+    return result
+
+def merge(images, size):
+
+    if size[0] + size[1] == 2:
+        h, w = images.shape[1], images.shape[2]
+        img = np.zeros((h * size[0], w * size[1], 3))
+        for idx, image in enumerate(images):
+            i = idx % size[1]
+            j = idx // size[1]
+            img[j * h:j * h + h, i * w: i * w + w, :] = image
+    else:
+        h, w = images.shape[1], images.shape[2]
+        img = np.zeros((h * size[0], w * size[1], 3))
+        for idx, image in enumerate(images):
+            i = idx % size[1]
+            j = idx // size[1]
+            img[j * h:j * h + h, i * w: i * w + w, :] = image
+
+    return img
