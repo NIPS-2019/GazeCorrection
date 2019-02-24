@@ -3,8 +3,8 @@ The code of paper "GazeCorrection: Self-Guided Eye Manipulation in the wild usin
 
 --------------------------------------------
 
-![](img/1.jpg)
-![](img/2.jpg)
+![](img/1.jpg,width = 400)
+![](img/2.jpg,width = 400)
 
 
 # Introduction
