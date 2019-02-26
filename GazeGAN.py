@@ -7,14 +7,9 @@ from ops import conv2d, lrelu, instance_norm, de_conv, fully_connect
 
 
 class Gaze_GAN(object):
-
-    # build model
     def __init__(self, dataset, config):
-
-
         self.dataset = dataset
-
-        # input hyper
+        
         self.output_size = config.image_size
         self.channel = dataset.channel
         self.batch_size = config.batch_size
@@ -22,7 +17,6 @@ class Gaze_GAN(object):
         self.pretrain_model_index = config.pretrain_model_index
         self.pretrain_model_dir = config.pretrain_model_dir
 
-        # output hyper
         self.sample_dir = config.sample_dir
         self.model_dir = config.model_dir
         self.log_dir = config.log_dir
@@ -30,14 +24,12 @@ class Gaze_GAN(object):
         self.result_dir = config.result_dir
         self.batch_num = dataset.test_num / self.batch_size
 
-        # model hyper
         self.lam_percep = config.lam_percep
         self.lam_recon = config.lam_recon
         self.loss_type = config.loss_type
         self.use_sp = config.use_sp
         self.log_vars = []
-
-        # trainning hyper
+        
         self.g_learning_rate = config.g_learning_rate
         self.d_learning_rate = config.d_learning_rate
 
@@ -48,7 +40,6 @@ class Gaze_GAN(object):
         self.start_step = config.start_step
         self.max_iters = config.max_iters
 
-        # placeholder
         self.input_left_labels = tf.placeholder(tf.float32, [self.batch_size, self.pos_number])
         self.input_right_labels = tf.placeholder(tf.float32, [self.batch_size, self.pos_number])
         self.input = tf.placeholder(tf.float32, [self.batch_size, self.output_size, self.output_size, self.channel])
@@ -59,24 +50,15 @@ class Gaze_GAN(object):
     def build_model(self):
 
         self.incomplete_img = self.input * (1 - self.mask)
-
-        # self.local_input_left = tf.image.crop_and_resize(self.input, boxes=self.input_left_labels,
-        #                         box_ind=range(0, self.batch_size), crop_size=[self.output_size/2, self.output_size/2])
-        # self.local_input_right = tf.image.crop_and_resize(self.input, boxes=self.input_right_labels,
-        #                          box_ind=range(0, self.batch_size), crop_size=[self.output_size/2, self.output_size/2])
+        
         self.local_input_left = self.crop_and_resize(self.input, self.input_left_labels)
         self.local_input_right = self.crop_and_resize(self.input, self.input_right_labels)
-
+        
         self.angle_invar_left_real = self.encode(self.local_input_left, reuse=False)
         self.angle_invar_right_real = self.encode(self.local_input_right, reuse=True)
 
         self.recon_img = self.generator(self.incomplete_img, self.mask, self.angle_invar_left_real,
                                         self.angle_invar_right_real, reuse=False)
-
-        # self.local_recon_img_left = tf.image.crop_and_resize(self.recon_img, boxes=self.input_left_labels,
-        #                          box_ind=range(0, self.batch_size), crop_size=[self.output_size/2, self.output_size/2])
-        # self.local_recon_img_right = tf.image.crop_and_resize(self.recon_img, boxes=self.input_right_labels,
-        #                          box_ind=range(0, self.batch_size), crop_size=[self.output_size/2, self.output_size/2])
 
         self.local_recon_img_left = self.crop_and_resize(self.recon_img, self.input_left_labels)
         self.local_recon_img_right = self.crop_and_resize(self.recon_img, self.input_right_labels)
@@ -247,10 +229,8 @@ class Gaze_GAN(object):
                 f_d = {self.input: real_batch_image, self.mask: batch_masks,
                        self.input_left_labels: batch_left_eye_pos, self.input_right_labels: batch_right_eye_pos,
                        self.lr_decay: lr_decay}
-
-                # optimize D
+                
                 sess.run(opti_D, feed_dict=f_d)
-                # optimize G
                 sess.run(opti_G, feed_dict=f_d)
 
                 summary_str = sess.run(summary_op, feed_dict=f_d)
@@ -375,8 +355,7 @@ class Gaze_GAN(object):
             recon_img1 = conv2d(de_x, output_dim=3, k_w=7, k_h=7, d_h=1, d_w=1, use_sp=use_sp, name='output_conv')
 
             return tf.nn.tanh(recon_img1)
-
-    # DO NOT CHANGE SCOPE NAME
+        
     def encode(self, x, reuse=False):
 
         with tf.variable_scope("encode") as scope:
