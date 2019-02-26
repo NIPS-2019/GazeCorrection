@@ -27,9 +27,9 @@ Gaze correction aims to redirect the person’s gaze intothecamerabymanipulating
 
 - Clone this repo:
 ```bash
-git clone https://github.com/zhangqianhui/Eye_Rotation_GAN.git
+git clone https://github.com/IJCAI2019/GazeCorrection.git
 ```
-- Download the Eye_Rotation dataset
+- Download the NewGaze dataset
 
 Coming soon!!!
 
