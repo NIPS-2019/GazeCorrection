@@ -13,7 +13,7 @@ Gaze correction aims to redirect the person’s gaze intothecamerabymanipulating
 
 ## Network Architecture
 
-![](/img/20190226154735.png.png)
+![](/img/20190226154735.jpg)
 
 
 ## 
