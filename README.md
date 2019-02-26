@@ -40,14 +40,3 @@ python main.py
 
 
             
-# Reference code
-
-- [Sparsely_Grouped_GAN](https://github.com/zhangqianhui/Sparsely-Grouped-GAN)
-
-- [DCGAN tensorflow](https://github.com/carpedm20/DCGAN-tensorflow)
-
-- [Spectral Norm tensorflow](https://github.com/taki0112/Spectral_Normalization-Tensorflow)
-
-- [Exemplar-GAN-Eye-Inpainting-Tensorflow](https://github.com/zhangqianhui/Exemplar-GAN-Eye-Inpainting-Tensorflow.git)
-
-- [ELEGANT](https://github.com/Prinsphield/ELEGANT)
