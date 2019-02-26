@@ -4,63 +4,43 @@ import os
 class Config:
 
     CUDA = True
-    gpu_id = 0
-
-    # model configuration
-    image_size = 256
-    hwc = [image_size, image_size, 3]
-    pos_number = 4
     use_sp = True
-
-    # training configuration
-    is_training = True
     shuffle = True
-    batch_size = 16
-    max_iters = 500000
+    is_training = True
+
+    step = 0
+    lam_fp = 1
+    gpu_id = 0 
+    lr_decay = 1
     beta1 = 0.5
     beta2 = 0.999
-    g_learning_rate = 0.0001
-    d_learning_rate = 0.0001
-    lam_percep = 1
-    lam_recon = 1
-    start_step = 0
-    learning_rate_init = 1
     loss_type = 1
-
-
+    pos_number = 4
+    lam_recon = 10
+    batch_size = 16
+    batch_num = 200
     capacity = 5000
     num_threads = 10
+    image_size = 256
+    max_iters = 500000
+    test_step = 100000
+    g_learning_rate = 0.0001
+    d_learning_rate = 0.0001
+    hwc = [image_size, image_size, 3]
 
-    pretrain_model_index = 100000
-
-
-    # #  input directories
-    # dir_path = "NewGazeData"
-    # pretrain_model_dirname = "read_model"
-    # dataset_txt0 = "/eye_position_new_gaze_0.txt"#
-    # dataset_txt1 = "/eye_position_new_gaze_1.txt"
-    # data_dir_path = "/eye_ijcai/"
-
-
-    #  input directories
-    image_dirname = "eye_11_26_dataset"
     pretrain_model_dirname = "read_model"
     attr_0_filename = "eye_position_0.txt"
     attr_1_filename= "eye_position_1.txt"
     data_dirname = "eye_ijcai"
 
-    # output directories names
     model_dirname = "models"
     result_dirname = "results"
     sample_dirname = "samples"
     log_dirname = "logs"
 
-
-
     @property
     def base_path(self):
-        #return os.path.abspath(os.curdir)
-        return '/mnt/sata/jichao/dataset'
+        return os.path.abspath(os.curdir)
 
 
     @property
@@ -72,12 +52,11 @@ class Config:
 
     @property
     def exp_dir(self):
-        # exp_dir = self.base_path
-        #
-        # if not os.path.exists(exp_dir):
-        #     os.makedirs(exp_dir)
-        # return exp_dir
-        return '/mnt/sata/syz/cjj/Eye_rotation_from_mengsun/from_github'
+        exp_dir = self.base_path
+
+        if not os.path.exists(exp_dir):
+            os.makedirs(exp_dir)
+        return exp_dir
 
     @property
     def pretrain_model_dir(self):
