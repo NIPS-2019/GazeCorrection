@@ -89,8 +89,8 @@ class Gaze_GAN(object):
             self.d_gan_loss = self.d_lsgan_loss(self.D_real_gan_logits, self.D_fake_gan_logits)
             self.g_gan_loss = self.g_lsgan_loss(self.D_fake_gan_logits)
 
-        self.percep_loss = tf.reduce_mean(tf.square(self.angle_invar_left_real - self.angle_invar_left_recon)) + \
-                           tf.reduce_mean(tf.square(self.angle_invar_right_real - self.angle_invar_right_recon))
+        self.percep_loss = tf.reduce_mean(tf.abs(self.angle_invar_left_real - self.angle_invar_left_recon)) + \
+                           tf.reduce_mean(tf.abs(self.angle_invar_right_real - self.angle_invar_right_recon))
 
         self.recon_loss = tf.reduce_mean(tf.reduce_sum(tf.abs(self.new_recon_img - self.input),
                                                               axis=[1, 2, 3])/ (35 * 70 * self.channel))
